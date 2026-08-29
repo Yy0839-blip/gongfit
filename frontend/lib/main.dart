@@ -1,60 +1,45 @@
 import 'package:flutter/material.dart';
+import 'core/theme/app_theme.dart';
+import 'data/models/profile.dart';
+import 'data/repositories/gongfit_repository.dart';
+import 'presentation/viewmodels/analyze_view_model.dart';
+import 'presentation/viewmodels/chat_view_model.dart';
 
 void main() => runApp(const GongfitApp());
 
 class GongfitApp extends StatelessWidget {
   const GongfitApp({super.key});
-
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      title: '공핏',
-      theme: ThemeData(useMaterial3: true, colorSchemeSeed: const Color(0xFF2563EB)),
-      home: const HomePage(),
-    );
-  }
+  Widget build(BuildContext context) => MaterialApp(debugShowCheckedModeBanner: false, title: '공핏', theme: AppTheme.light(), home: const HomePage());
 }
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
-
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('공핏')),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          Text('공공기관 취업,\n나에게 맞는지 먼저 확인하세요.', style: Theme.of(context).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
-          Text('채용공고와 내 정보를 비교해 적합도와 준비 전략을 확인할 수 있습니다.'),
-          const SizedBox(height: 28),
-          _Card(title: '채용공고 분석', subtitle: '공고를 붙여넣고 지원 가능 여부를 확인하세요.', icon: Icons.description_outlined, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AnalyzePage()))),
-          _Card(title: '내 적합도 확인', subtitle: '직무·경력·자격증을 기준으로 매칭합니다.', icon: Icons.analytics_outlined, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage()))),
-          _Card(title: '공핏 AI 상담', subtitle: '공고와 분석 결과를 바탕으로 질문하세요.', icon: Icons.chat_bubble_outline, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatPage()))),
-        ],
-      ),
-    );
-  }
+  Widget build(BuildContext context) => Scaffold(
+    body: SafeArea(child: ListView(padding: const EdgeInsets.fromLTRB(22, 18, 22, 32), children: [
+      Row(children: [Container(width: 44, height: 44, decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary, borderRadius: BorderRadius.circular(14)), child: const Icon(Icons.auto_awesome, color: Colors.white)), const SizedBox(width: 12), const Text('공핏', style: TextStyle(fontSize: 24, fontWeight: FontWeight.w800)), const Spacer(), IconButton(onPressed: () {}, icon: const Icon(Icons.notifications_none_rounded))]),
+      const SizedBox(height: 34),
+      const Text('내게 맞는 공공기관\n취업을 시작해보세요.', style: TextStyle(fontSize: 31, fontWeight: FontWeight.w800, height: 1.18)),
+      const SizedBox(height: 10), const Text('채용공고를 분석하고 나와 얼마나 잘 맞는지 확인하세요.', style: TextStyle(color: Colors.black54, fontSize: 15)),
+      const SizedBox(height: 26),
+      _Hero(onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const AnalyzePage()))),
+      const SizedBox(height: 18),
+      Row(children: [Expanded(child: _Feature(icon: Icons.person_outline, title: '내 프로필', sub: '스펙 관리', tap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ProfilePage())))), const SizedBox(width: 12), Expanded(child: _Feature(icon: Icons.chat_bubble_outline, title: '공핏 AI', sub: '취업 상담', tap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const ChatPage()))))]),
+      const SizedBox(height: 28), const Text('공핏이 해드리는 것', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w800)), const SizedBox(height: 12),
+      const _Info(icon: Icons.analytics_outlined, title: 'AI 직무 적합도', text: '지원 가능 여부와 직무 적합도를 한눈에'), const _Info(icon: Icons.track_changes_outlined, title: '맞춤 준비 전략', text: '부족한 역량과 지금 해야 할 일을 제안'), const _Info(icon: Icons.psychology_outlined, title: 'AI 취업 상담', text: '내 공고와 프로필을 이해하는 AI 상담')
+    ])),
+  );
 }
 
-class _Card extends StatelessWidget {
-  final String title, subtitle; final IconData icon; final VoidCallback onTap;
-  const _Card({required this.title, required this.subtitle, required this.icon, required this.onTap});
-  @override Widget build(BuildContext context) => Card(child: ListTile(contentPadding: const EdgeInsets.all(16), leading: Icon(icon, size: 32), title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)), subtitle: Padding(padding: const EdgeInsets.only(top: 6), child: Text(subtitle)), trailing: const Icon(Icons.chevron_right), onTap: onTap));
-}
+class _Hero extends StatelessWidget { final VoidCallback onTap; const _Hero({required this.onTap}); @override Widget build(BuildContext c) => InkWell(onTap: onTap, borderRadius: BorderRadius.circular(28), child: Container(padding: const EdgeInsets.all(24), decoration: BoxDecoration(color: Theme.of(c).colorScheme.primary, borderRadius: BorderRadius.circular(28)), child: const Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Icon(Icons.description_rounded, color: Colors.white, size: 34), SizedBox(height: 22), Text('채용공고 분석하기', style: TextStyle(color: Colors.white, fontSize: 21, fontWeight: FontWeight.w800)), SizedBox(height: 7), Text('공고를 붙여넣으면 공핏이\n지원 전략을 만들어드려요.', style: TextStyle(color: Colors.white70, fontSize: 14, height: 1.5)), SizedBox(height: 20), Row(children: [Text('지금 시작하기', style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700)), SizedBox(width: 6), Icon(Icons.arrow_forward_rounded, color: Colors.white, size: 18)])]))); }
+class _Feature extends StatelessWidget { final IconData icon; final String title, sub; final VoidCallback tap; const _Feature({required this.icon, required this.title, required this.sub, required this.tap}); @override Widget build(BuildContext c) => InkWell(onTap: tap, borderRadius: BorderRadius.circular(22), child: Container(padding: const EdgeInsets.all(18), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(22), boxShadow: [BoxShadow(color: Colors.black.withOpacity(.04), blurRadius: 20, offset: const Offset(0, 8))]), child: Row(children: [Icon(icon, size: 27), const SizedBox(width: 12), Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontWeight: FontWeight.w800)), const SizedBox(height: 3), Text(sub, style: const TextStyle(color: Colors.black45, fontSize: 12))])]))); }
+class _Info extends StatelessWidget { final IconData icon; final String title, text; const _Info({required this.icon, required this.title, required this.text}); @override Widget build(BuildContext c) => Padding(padding: const EdgeInsets.only(bottom: 10), child: Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)), child: Row(children: [Icon(icon), const SizedBox(width: 14), Expanded(child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [Text(title, style: const TextStyle(fontWeight: FontWeight.w700)), const SizedBox(height: 4), Text(text, style: const TextStyle(color: Colors.black54, fontSize: 13))]))]))); }
 
-class AnalyzePage extends StatelessWidget {
-  const AnalyzePage({super.key});
-  @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('채용공고 분석')), body: const Padding(padding: EdgeInsets.all(20), child: TextField(maxLines: 16, decoration: InputDecoration(hintText: '채용공고 내용을 붙여넣으세요.', border: OutlineInputBorder()))));
-}
+class AnalyzePage extends StatefulWidget { const AnalyzePage({super.key}); @override State<AnalyzePage> createState() => _AnalyzeState(); }
+class _AnalyzeState extends State<AnalyzePage> { final text = TextEditingController(); final vm = AnalyzeViewModel(GongfitRepository()); @override void dispose(){text.dispose(); vm.dispose(); super.dispose();} @override Widget build(BuildContext c) => Scaffold(appBar: AppBar(title: const Text('채용공고 분석', style: TextStyle(fontWeight: FontWeight.w800))), body: AnimatedBuilder(animation: vm, builder: (_, __) => ListView(padding: const EdgeInsets.all(20), children: [const Text('채용공고를 붙여넣으세요', style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800)), const SizedBox(height: 8), const Text('공핏이 지원자격과 직무 적합도를 분석합니다.', style: TextStyle(color: Colors.black54)), const SizedBox(height: 22), TextField(controller: text, maxLines: 14, decoration: const InputDecoration(hintText: '채용공고 전체 내용을 붙여넣어 주세요.')), const SizedBox(height: 16), if(vm.error != null) Text(vm.error!, style: TextStyle(color: Theme.of(c).colorScheme.error)), SizedBox(height: 52, width: double.infinity, child: FilledButton(onPressed: vm.loading ? null : () => vm.analyze(text.text, const Profile()), child: vm.loading ? const SizedBox(width: 22, height: 22, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('공핏 분석 시작', style: TextStyle(fontWeight: FontWeight.w700)))), if(vm.result != null) ...[const SizedBox(height: 24), const Text('분석 결과', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800)), const SizedBox(height: 8), Container(padding: const EdgeInsets.all(16), decoration: BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(20)), child: Text(vm.result.toString()))]]))); }
 
-class ProfilePage extends StatelessWidget {
-  const ProfilePage({super.key});
-  @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('내 프로필')), body: ListView(padding: const EdgeInsets.all(20), children: const [TextField(decoration: InputDecoration(labelText: '희망 직무')), SizedBox(height: 12), TextField(decoration: InputDecoration(labelText: '전공')), SizedBox(height: 12), TextField(decoration: InputDecoration(labelText: '자격증')), SizedBox(height: 12), TextField(decoration: InputDecoration(labelText: '경력·경험'), maxLines: 5)]));
-}
+class ProfilePage extends StatelessWidget { const ProfilePage({super.key}); @override Widget build(BuildContext c) => Scaffold(appBar: AppBar(title: const Text('내 프로필', style: TextStyle(fontWeight: FontWeight.w800))), body: ListView(padding: const EdgeInsets.all(20), children: const [Text('나를 알려주세요', style: TextStyle(fontSize: 25, fontWeight: FontWeight.w800)), SizedBox(height: 8), Text('프로필이 쌓일수록 공핏의 분석이 정교해집니다.', style: TextStyle(color: Colors.black54)), SizedBox(height: 24), TextField(decoration: InputDecoration(labelText: '희망 직무')), SizedBox(height: 12), TextField(decoration: InputDecoration(labelText: '전공')), SizedBox(height: 12), TextField(decoration: InputDecoration(labelText: '자격증', hintText: '쉼표로 구분')), SizedBox(height: 12), TextField(maxLines: 5, decoration: InputDecoration(labelText: '경력 · 프로젝트'))])); }
 
-class ChatPage extends StatefulWidget { const ChatPage({super.key}); @override State<ChatPage> createState() => _ChatPageState(); }
-class _ChatPageState extends State<ChatPage> { final controller = TextEditingController(); final messages = <String>[];
-  @override Widget build(BuildContext context) => Scaffold(appBar: AppBar(title: const Text('공핏 AI 상담')), body: Column(children: [Expanded(child: ListView.builder(padding: const EdgeInsets.all(16), itemCount: messages.length, itemBuilder: (_, i) => Align(alignment: i.isEven ? Alignment.centerRight : Alignment.centerLeft, child: Card(child: Padding(padding: const EdgeInsets.all(12), child: Text(messages[i]))))),), SafeArea(child: Padding(padding: const EdgeInsets.all(12), child: Row(children: [Expanded(child: TextField(controller: controller, decoration: const InputDecoration(hintText: '무엇이든 물어보세요', border: OutlineInputBorder()))), const SizedBox(width: 8), IconButton(onPressed: () { if (controller.text.trim().isEmpty) return; setState(() { messages.add(controller.text.trim()); messages.add('공핏 AI가 분석을 준비하고 있습니다.'); controller.clear(); }); }, icon: const Icon(Icons.send))]))])); }
+class ChatPage extends StatefulWidget { const ChatPage({super.key}); @override State<ChatPage> createState() => _ChatState(); }
+class _ChatState extends State<ChatPage> { final input = TextEditingController(); final vm = ChatViewModel(GongfitRepository()); @override void dispose(){input.dispose(); vm.dispose(); super.dispose();} @override Widget build(BuildContext c) => Scaffold(appBar: AppBar(title: const Text('공핏 AI', style: TextStyle(fontWeight: FontWeight.w800))), body: Column(children: [Expanded(child: AnimatedBuilder(animation: vm, builder: (_, __) => ListView(padding: const EdgeInsets.all(18), children: [if(vm.messages.isEmpty) const Padding(padding: EdgeInsets.only(top: 100), child: Column(children: [Icon(Icons.auto_awesome, size: 42), SizedBox(height: 16), Text('무엇이든 물어보세요', style: TextStyle(fontSize: 22, fontWeight: FontWeight.w800)), SizedBox(height: 8), Text('공고, 자소서, 면접, 취업전략까지\n공핏 AI가 함께 준비합니다.', textAlign: TextAlign.center, style: TextStyle(color: Colors.black54))]), ...vm.messages.map((m) => Align(alignment: m.user ? Alignment.centerRight : Alignment.centerLeft, child: Container(margin: const EdgeInsets.only(bottom: 10), padding: const EdgeInsets.all(14), constraints: const BoxConstraints(maxWidth: 340), decoration: BoxDecoration(color: m.user ? const Color(0xFF155EEF) : Colors.white, borderRadius: BorderRadius.circular(18)), child: Text(m.text, style: TextStyle(color: m.user ? Colors.white : Colors.black87, height: 1.45))))])), SafeArea(child: Padding(padding: const EdgeInsets.fromLTRB(14, 8, 14, 14), child: Row(children: [Expanded(child: TextField(controller: input, minLines: 1, maxLines: 4, decoration: const InputDecoration(hintText: '공핏 AI에게 물어보세요'))), const SizedBox(width: 8), IconButton.filled(onPressed: vm.loading ? null : () { final t = input.text; input.clear(); vm.send(t); }, icon: const Icon(Icons.arrow_upward_rounded))]))])); }
