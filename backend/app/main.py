@@ -1,4 +1,6 @@
+import os
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Optional
 from .services.matching import calculate_match
@@ -6,6 +8,9 @@ from .services.chat import chat_with_ai
 from .services.job_parser import parse_job_posting
 
 app = FastAPI(title="GONGFIT API", version="0.1.0")
+
+origins = [x.strip() for x in os.getenv("CORS_ORIGINS", "*").split(",") if x.strip()]
+app.add_middleware(CORSMiddleware, allow_origins=origins, allow_credentials=False, allow_methods=["*"], allow_headers=["*"])
 
 class Profile(BaseModel):
     education: Optional[str] = None
@@ -39,7 +44,7 @@ class ChatRequest(BaseModel):
 
 @app.get("/health")
 def health() -> dict:
-    return {"status": "ok", "service": "gongfit"}
+    return {"status": "ok", "service": "gongfit", "version": "0.1.0"}
 
 @app.post("/api/v1/jobs/parse")
 def parse_job(request: ParseJobRequest) -> dict:
@@ -51,9 +56,4 @@ def match(request: MatchRequest) -> dict:
 
 @app.post("/api/v1/chat")
 async def chat(request: ChatRequest) -> dict:
-    return await chat_with_ai(
-        message=request.message,
-        profile=request.profile.model_dump() if request.profile else None,
-        job=request.job.model_dump() if request.job else None,
-        analysis=request.analysis,
-    )
+    return await chat_with_ai(message=request.message, profile=request.profile.model_dump() if request.profile else None, job=request.job.model_dump() if request.job else None, analysis=request.analysis)
