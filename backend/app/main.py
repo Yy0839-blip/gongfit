@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field
 from typing import Optional
 from .services.matching import calculate_match
 from .services.chat import chat_with_ai
+from .services.job_parser import parse_job_posting
 
 app = FastAPI(title="GONGFIT API", version="0.1.0")
 
@@ -27,8 +28,11 @@ class MatchRequest(BaseModel):
     profile: Profile
     job: JobPosting
 
+class ParseJobRequest(BaseModel):
+    text: str = Field(min_length=1, max_length=20000)
+
 class ChatRequest(BaseModel):
-    message: str
+    message: str = Field(min_length=1, max_length=4000)
     profile: Optional[Profile] = None
     job: Optional[JobPosting] = None
     analysis: Optional[dict] = None
@@ -36,6 +40,10 @@ class ChatRequest(BaseModel):
 @app.get("/health")
 def health() -> dict:
     return {"status": "ok", "service": "gongfit"}
+
+@app.post("/api/v1/jobs/parse")
+def parse_job(request: ParseJobRequest) -> dict:
+    return parse_job_posting(request.text)
 
 @app.post("/api/v1/match")
 def match(request: MatchRequest) -> dict:
